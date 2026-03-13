@@ -10,18 +10,20 @@ function App() {
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
 
+  const API_URL = "https://expense-tracker-fullstack-1-ikle.onrender.com/api/expenses/";
+
   useEffect(() => {
     fetchExpenses();
   }, []);
 
   const fetchExpenses = async () => {
-    const res = await axios.get("http://127.0.0.1:8000/api/expenses/");
+    const res = await axios.get(API_URL);
     setExpenses(res.data);
   };
 
   const addExpense = async () => {
 
-    await axios.post("http://127.0.0.1:8000/api/expenses/", {
+    await axios.post(API_URL, {
       title,
       amount,
       date,
@@ -36,7 +38,7 @@ function App() {
   const updateExpense = async () => {
 
     await axios.put(
-      `http://127.0.0.1:8000/api/expenses/${editingId}/`,
+      `${API_URL}${editingId}/`,
       {
         title,
         amount,
@@ -53,7 +55,7 @@ function App() {
   const deleteExpense = async (id) => {
 
     await axios.delete(
-      `http://127.0.0.1:8000/api/expenses/${id}/`
+      `${API_URL}${id}/`
     );
 
     fetchExpenses();
@@ -116,7 +118,6 @@ function App() {
         )}
 
       </div>
-
 
       {/* Expense List */}
 
