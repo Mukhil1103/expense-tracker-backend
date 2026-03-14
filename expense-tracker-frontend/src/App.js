@@ -22,41 +22,31 @@ function App() {
   };
 
   const addExpense = async () => {
-    const addExpense = async () => {
-  await axios.post(API_URL, {
-    title: title,
-    amount: parseFloat(amount),
-    date: date,
-    category: 1
-  });
+    await axios.post(API_URL, {
+      title: title,
+      amount: parseFloat(amount),
+      date: date,
+      category: 1
+    });
 
-  clearForm();
-  fetchExpenses();
-};
-
-    
+    clearForm();
+    fetchExpenses();
+  };
 
   const updateExpense = async () => {
-    const updateExpense = async () => {
-  await axios.put(`${API_URL}${editingId}/`, {
-    title: title,
-    amount: parseFloat(amount),
-    date: date,
-    category: 1
-  });
+    await axios.put(`${API_URL}${editingId}/`, {
+      title: title,
+      amount: parseFloat(amount),
+      date: date,
+      category: 1
+    });
 
-  clearForm();
-  fetchExpenses();
-};
-
-    
+    clearForm();
+    fetchExpenses();
+  };
 
   const deleteExpense = async (id) => {
-
-    await axios.delete(
-      `${API_URL}${id}/`
-    );
-
+    await axios.delete(`${API_URL}${id}/`);
     fetchExpenses();
   };
 
@@ -78,8 +68,6 @@ function App() {
     <div style={styles.container}>
 
       <h1 style={styles.title}>Expense Tracker Dashboard</h1>
-
-      {/* Add / Edit Form */}
 
       <div style={styles.card}>
 
@@ -118,8 +106,6 @@ function App() {
 
       </div>
 
-      {/* Expense List */}
-
       <div style={styles.grid}>
 
         {expenses.map((expense) => (
@@ -127,9 +113,7 @@ function App() {
           <div key={expense.id} style={styles.expenseCard}>
 
             <h3>{expense.title}</h3>
-
             <p>₹{expense.amount}</p>
-
             <p>{expense.date}</p>
 
             <div style={{display:"flex", gap:"10px"}}>
@@ -161,7 +145,6 @@ function App() {
 }
 
 const styles = {
-
   container:{
     padding:"40px",
     fontFamily:"Arial",
@@ -225,7 +208,6 @@ const styles = {
     padding:"6px 10px",
     cursor:"pointer"
   }
-
 };
 
 export default App;
