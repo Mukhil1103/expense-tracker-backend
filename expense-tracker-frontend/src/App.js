@@ -26,7 +26,6 @@ function App() {
     title: title,
     amount: Number(amount),
     date: date
-    
   });
 
   clearForm();
@@ -38,7 +37,7 @@ const updateExpense = async () => {
     title: title,
     amount: Number(amount),
     date: date
-    });
+  });
 
   clearForm();
   fetchExpenses();
