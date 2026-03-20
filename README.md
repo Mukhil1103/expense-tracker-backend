@@ -1,32 +1,23 @@
-# 💰 Expense Tracker (Full Stack)
+# Expense Tracker Backend
 
-A full-stack expense tracking application built with:
+Django REST API with JWT authentication for managing expenses.
 
-- ⚛️ React (Frontend)
-- 🐍 Django REST Framework (Backend)
-- 🐘 PostgreSQL (Database)
-- ☁️ Vercel + Render Deployment
+## Features
+- JWT Authentication (Login / Refresh)
+- CRUD operations for expenses
+- Protected endpoints
+- RESTful API design
 
-## 🚀 Features
-- JWT Authentication
-- Add / Edit / Delete expenses
-- Dashboard analytics (charts + stats)
-- Secure API
-- Responsive UI
-
-## 🔗 Live Demo
-Frontend: https://your-vercel-link  
-Backend: https://your-render-link
-
-## 📦 Tech Stack
-- React
+## Tech Stack
 - Django
-- REST API
-- PostgreSQL
-- Chart.js
+- Django REST Framework
+- SimpleJWT
 
-## 🧠 What I Learned
-- Full-stack development
-- API integration
-- Authentication (JWT)
-- Deployment
+## API Endpoints
+
+- /api/token/ → Login
+- /api/expenses/ → CRUD operations
+- /api/categories/
+
+## Deployment
+Hosted on Render
