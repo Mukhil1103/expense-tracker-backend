@@ -1,50 +1,75 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Login from "./Login";
+import ExpenseChart from "./components/ExpenseChart";
 
 function App() {
 
   const [expenses, setExpenses] = useState([]);
   const [editingId, setEditingId] = useState(null);
-
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
-  const API_URL = "https://expense-tracker-fullstack-1-ikle.onrender.com/api/expenses/";
+  const API_URL = "http://127.0.0.1:8000/api/expenses/";
 
   useEffect(() => {
-    fetchExpenses();
-  }, []);
+    if (token) {
+      fetchExpenses();
+    }
+  }, [token]);
 
   const fetchExpenses = async () => {
-    const res = await axios.get(API_URL);
-    setExpenses(res.data);
+    try {
+      const res = await axios.get(API_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setExpenses(res.data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
- const addExpense = async () => {
-  await axios.post(API_URL, {
-    title: title,
-    amount: Number(amount),
-    date: date
-  });
+  const addExpense = async () => {
+    await axios.post(API_URL, {
+      title,
+      amount: Number(amount),
+      date
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-  clearForm();
-  fetchExpenses();
-};
+    clearForm();
+    fetchExpenses();
+  };
 
-const updateExpense = async () => {
-  await axios.put(`${API_URL}${editingId}/`, {
-    title: title,
-    amount: Number(amount),
-    date: date
-  });
+  const updateExpense = async () => {
+    await axios.put(`${API_URL}${editingId}/`, {
+      title,
+      amount: Number(amount),
+      date
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-  clearForm();
-  fetchExpenses();
-};
+    clearForm();
+    fetchExpenses();
+  };
 
   const deleteExpense = async (id) => {
-    await axios.delete(`${API_URL}${id}/`);
+    await axios.delete(`${API_URL}${id}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
     fetchExpenses();
   };
 
@@ -62,149 +87,171 @@ const updateExpense = async () => {
     setEditingId(null);
   };
 
+  const total = expenses.reduce(
+    (sum, e) => sum + Number(e.amount),
+    0
+  );
+
   return (
-    <div style={styles.container}>
+    <div style={styles.appWrapper}>
 
-      <h1 style={styles.title}>Expense Tracker Dashboard</h1>
+      {!token ? (
+        <Login setToken={setToken} />
+      ) : (
+        <>
+          {/* Sidebar */}
+          <div style={styles.sidebar}>
+            <h2>💰 FinTrack</h2>
 
-      <div style={styles.card}>
+            <p style={styles.menuItem}>Dashboard</p>
+            <p style={styles.menuItem}>Expenses</p>
+            <p style={styles.menuItem}>Analytics</p>
 
-        <h2>{editingId ? "Edit Expense" : "Add Expense"}</h2>
+            <button
+              style={styles.logoutBtn}
+              onClick={() => {
+                localStorage.removeItem("token");
+                setToken(null);
+              }}
+            >
+              Logout
+            </button>
+          </div>
 
-        <input
-          style={styles.input}
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+          {/* Main Content */}
+          <div style={styles.main}>
 
-        <input
-          style={styles.input}
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
+            <h1>Dashboard</h1>
 
-        <input
-          style={styles.input}
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
+            {/* Stats Cards */}
+            <div style={styles.statsRow}>
 
-        {editingId ? (
-          <button style={styles.button} onClick={updateExpense}>
-            Update Expense
-          </button>
-        ) : (
-          <button style={styles.button} onClick={addExpense}>
-            Add Expense
-          </button>
-        )}
+              <div style={styles.statCard}>
+                ₹ {total}
+                <p>Total Spending</p>
+              </div>
 
-      </div>
+              <div style={styles.statCard}>
+                {expenses.length}
+                <p>Transactions</p>
+              </div>
 
-      <div style={styles.grid}>
+            </div>
 
-        {expenses.map((expense) => (
+            {/* Chart */}
+            <ExpenseChart expenses={expenses} />
 
-          <div key={expense.id} style={styles.expenseCard}>
+            {/* Form */}
+            <div style={styles.card}>
 
-            <h3>{expense.title}</h3>
-            <p>₹{expense.amount}</p>
-            <p>{expense.date}</p>
+              <h3>{editingId ? "Edit Expense" : "Add Expense"}</h3>
 
-            <div style={{display:"flex", gap:"10px"}}>
+              <input
+                style={styles.input}
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+
+              <input
+                style={styles.input}
+                placeholder="Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+
+              <input
+                style={styles.input}
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
 
               <button
-                style={styles.editBtn}
-                onClick={() => editExpense(expense)}
+                style={styles.button}
+                onClick={editingId ? updateExpense : addExpense}
               >
-                Edit
-              </button>
-
-              <button
-                style={styles.deleteBtn}
-                onClick={() => deleteExpense(expense.id)}
-              >
-                Delete
+                {editingId ? "Update Expense" : "Add Expense"}
               </button>
 
             </div>
 
           </div>
-
-        ))}
-
-      </div>
-
+        </>
+      )}
     </div>
   );
 }
 
 const styles = {
-  container:{
-    padding:"40px",
-    fontFamily:"Arial",
-    background:"#f4f6f8",
-    minHeight:"100vh"
+
+  appWrapper: {
+    display: "flex"
   },
 
-  title:{
-    textAlign:"center",
-    marginBottom:"30px"
+  sidebar: {
+    width: "220px",
+    height: "100vh",
+    background: "#111",
+    color: "white",
+    padding: "20px"
   },
 
-  card:{
-    background:"white",
-    padding:"20px",
-    borderRadius:"10px",
-    marginBottom:"30px",
-    boxShadow:"0 2px 6px rgba(0,0,0,0.1)"
+  menuItem: {
+    margin: "15px 0",
+    cursor: "pointer"
   },
 
-  input:{
-    display:"block",
-    marginBottom:"10px",
-    padding:"10px",
-    width:"100%"
+  logoutBtn: {
+    marginTop: "30px",
+    padding: "10px",
+    background: "#f44336",
+    color: "white",
+    border: "none",
+    cursor: "pointer",
+    width: "100%"
   },
 
-  button:{
-    padding:"10px 20px",
-    background:"#4CAF50",
-    color:"white",
-    border:"none",
-    cursor:"pointer"
+  main: {
+    flex: 1,
+    padding: "30px",
+    background: "#f4f6f8"
   },
 
-  grid:{
-    display:"grid",
-    gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",
-    gap:"20px"
+  statsRow: {
+    display: "flex",
+    gap: "20px",
+    marginBottom: "20px"
   },
 
-  expenseCard:{
-    background:"white",
-    padding:"20px",
-    borderRadius:"10px",
-    boxShadow:"0 2px 6px rgba(0,0,0,0.1)"
+  statCard: {
+    background: "#fff",
+    padding: "20px",
+    borderRadius: "10px",
+    flex: 1,
+    boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
   },
 
-  editBtn:{
-    background:"#2196F3",
-    color:"white",
-    border:"none",
-    padding:"6px 10px",
-    cursor:"pointer"
+  card: {
+    background: "white",
+    padding: "20px",
+    borderRadius: "10px",
+    marginTop: "20px"
   },
 
-  deleteBtn:{
-    background:"#f44336",
-    color:"white",
-    border:"none",
-    padding:"6px 10px",
-    cursor:"pointer"
+  input: {
+    display: "block",
+    marginBottom: "10px",
+    padding: "10px",
+    width: "100%"
+  },
+
+  button: {
+    padding: "10px 20px",
+    background: "#4CAF50",
+    color: "white",
+    border: "none",
+    cursor: "pointer"
   }
 };
 
